@@ -1,0 +1,8 @@
+services:
+  api-wilayah:
+    image: ghcr.io/mushonnip/api-wilayah:latest
+    ports:
+      - "8989:8989"
+    environment:
+      PORT: 8989
+    restart: unless-stopped

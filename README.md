@@ -4,7 +4,7 @@ Indonesian administrative region API. Data embedded at compile time from BPS/Kem
 
 ## Stack
 
-- Rust + [Ntex](https://ntex.rs) 2.x
+- Rust + [Ntex](https://ntex.rs) 3.x
 - ~83K villages loaded into memory with O(1) lookup indexes
 - Single self-contained binary, no external files needed at runtime
 
