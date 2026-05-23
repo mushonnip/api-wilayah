@@ -65,6 +65,7 @@ pub struct PaginationQuery {
     pub page: Option<usize>,
     pub size: Option<usize>,
     pub search: Option<String>,
+    pub get_all: Option<bool>,
 }
 
 impl PaginationQuery {
@@ -74,6 +75,10 @@ impl PaginationQuery {
 
     pub fn size(&self) -> usize {
         self.size.unwrap_or(10).min(500)
+    }
+
+    pub fn get_all(&self) -> bool {
+        self.get_all.unwrap_or(false)
     }
 }
 

@@ -6,7 +6,12 @@ use std::sync::Arc;
 use crate::data::RegionStore;
 use crate::models::*;
 
-fn paginate<T: Clone>(items: &[T], page: usize, size: usize) -> Vec<T> {
+fn paginate<T: Clone>(items: &[T], query: &PaginationQuery) -> Vec<T> {
+    if query.get_all() {
+        return items.to_vec();
+    }
+    let page = query.page();
+    let size = query.size();
     let start = page * size;
     if start >= items.len() {
         return vec![];
@@ -30,18 +35,15 @@ pub async fn get_provinsi(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
-
     match query.search.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => {
             let records = state.search_provinsi(s);
             let total = records.len();
-            list_resp(paginate(&records, page, size), total)
+            list_resp(paginate(&records, &query), total)
         }
         None => {
             let total = state.provinsi.len();
-            list_resp(paginate(&state.provinsi, page, size), total)
+            list_resp(paginate(&state.provinsi, &query), total)
         }
     }
 }
@@ -50,18 +52,15 @@ pub async fn get_kab_kota(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
-
     match query.search.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => {
             let records = state.search_kab_kota(s);
             let total = records.len();
-            list_resp(paginate(&records, page, size), total)
+            list_resp(paginate(&records, &query), total)
         }
         None => {
             let total = state.kab_kota.len();
-            list_resp(paginate(&state.kab_kota, page, size), total)
+            list_resp(paginate(&state.kab_kota, &query), total)
         }
     }
 }
@@ -71,8 +70,6 @@ pub async fn get_kab_kota_by_prov(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
     let mut records = state.get_kab_kota_by_prov(&path.kode);
 
     if let Some(s) = query.search.as_deref().filter(|s| !s.is_empty()) {
@@ -83,25 +80,22 @@ pub async fn get_kab_kota_by_prov(
     }
 
     let total = records.len();
-    list_resp(paginate(&records, page, size), total)
+    list_resp(paginate(&records, &query), total)
 }
 
 pub async fn get_kecamatan(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
-
     match query.search.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => {
             let records = state.search_kecamatan(s);
             let total = records.len();
-            list_resp(paginate(&records, page, size), total)
+            list_resp(paginate(&records, &query), total)
         }
         None => {
             let total = state.kecamatan.len();
-            list_resp(paginate(&state.kecamatan, page, size), total)
+            list_resp(paginate(&state.kecamatan, &query), total)
         }
     }
 }
@@ -111,8 +105,6 @@ pub async fn get_kecamatan_by_kab_kota(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
     let mut records = state.get_kecamatan_by_kab_kota(&path.kode);
 
     if let Some(s) = query.search.as_deref().filter(|s| !s.is_empty()) {
@@ -123,26 +115,23 @@ pub async fn get_kecamatan_by_kab_kota(
     }
 
     let total = records.len();
-    list_resp(paginate(&records, page, size), total)
+    list_resp(paginate(&records, &query), total)
 }
 
 pub async fn get_desa_kel(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
-
     match query.search.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => {
             let records = state.search_desa_kel(s);
             let total = records.len();
-            list_resp(paginate(&records, page, size), total)
+            list_resp(paginate(&records, &query), total)
         }
         None => {
-            // avoid cloning all 82K records: paginate from slice directly
+            // avoid cloning all 82K records: paginate from slice directly if not get_all
             let total = state.desa_kel.len();
-            list_resp(paginate(&state.desa_kel, page, size), total)
+            list_resp(paginate(&state.desa_kel, &query), total)
         }
     }
 }
@@ -152,8 +141,6 @@ pub async fn get_desa_kel_by_kecamatan(
     state: State<Arc<RegionStore>>,
     query: Query<PaginationQuery>,
 ) -> HttpResponse {
-    let page = query.page();
-    let size = query.size();
     let mut records = state.get_desa_kel_by_kecamatan(&path.kode);
 
     if let Some(s) = query.search.as_deref().filter(|s| !s.is_empty()) {
@@ -164,7 +151,7 @@ pub async fn get_desa_kel_by_kecamatan(
     }
 
     let total = records.len();
-    list_resp(paginate(&records, page, size), total)
+    list_resp(paginate(&records, &query), total)
 }
 
 pub async fn get_region_details(

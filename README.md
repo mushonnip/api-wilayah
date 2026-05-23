@@ -37,6 +37,7 @@ docker run -p 8989:8989 api-wilayah
 | `page` | `0` | — | 0-based page |
 | `size` | `10` | `500` | Items per page |
 | `search` | — | — | Filter by name or kode (case-insensitive) |
+| `get_all` | `false` | — | Get all items without pagination (ignores `page` and `size`) |
 
 All list responses: `{ "data": [...], "total": N }` where `total` is count before pagination.  
 Total also available as `x-total-count` response header.
